@@ -1,0 +1,33 @@
+At the beginning, I wanted to generate private, public keys on server. Then via public key encript all files in victim's computer,
+and then after he pays with bitcoin send him private key.
+
+The problem that some files too large for asymetric decription, and it's too slow.
+
+So after seeking the internet for 1-2 days found great article about ransomware encryption techniques - time to rewrite the code again
+as I decided to implement them. Yey:
+https://medium.com/@tarcisioma/ransomware-encryption-techniques-696531d07bb9
+
+In general - server and client generate rsa keys. public key of server is hard coded in malware. for each file we generate
+symmetric keys(AES) and after encryption encrypt the symmetric keys with the client public key.
+So files encrypted with symmetric key, which is encrypted with client public key. To dencrypt symmetric key - we need client private key,
+which is encrypted with server public key. To encrypt certain file:
+1) Server decrypts client private key after payment.
+2) Client decrypts symmetric keys for all files and recovers them.
+
+Now why do I need to generate AES key for each encrypted file? Can't I just create one for all the files?
+I think it's so malwares can proof that their 'decription services' really work on one-two files - maybe will implement it later now I will use
+on symmetric key for all files.
+
+Nevermind I understood so if we get one key we can't decrypt all files.
+
+So the idea is to implement the above - if for example file name is mountaint.png it will be mountain.png.ENCRYPTED_SYMMETRIC_KEY.timurs_ransom
+after retrieving private client key i can encrypt all symmetric keys and restore files.
+And this way I dont have to save key data about all clients iin db or something - thats genious!
+
+By the way this eliminates the option to allow decryption off test files but I can alwayss generate another set of keys on server for this purpose))
+
+Okay now I have an idea of what I'm going to implement. ready set go.
+
+Yep there's a dumb problem - I can't encrypt RSA private key with public key as it's too big. yey. I will do it in chunks.
+for example my private key file is 886 characters long, so I will encrypt in chunks of 200, and server will do the same with decryption.
+Don't see another way.
