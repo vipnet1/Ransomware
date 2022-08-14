@@ -31,3 +31,13 @@ Okay now I have an idea of what I'm going to implement. ready set go.
 Yep there's a dumb problem - I can't encrypt RSA private key with public key as it's too big. yey. I will do it in chunks.
 for example my private key file is 886 characters long, so I will encrypt in chunks of 200, and server will do the same with decryption.
 Don't see another way.
+
+Okay it's cancer. It's not recommended to encrypt in chunks assymetricly it will be too slow and rensomware will encrypt very slow.
+I have another idea. I will use Fernet(first one i found on web xd) symmetric key:
+I cant encrypt client private key with server public key, so I will encrypt client private key with fernet symmetric key, and then fernet symmetric
+key with the server public key. So later after payment client requets server, server decrypts Fernet key and then we use Fernet symmetric key
+to decrypt client private key and later the files.
+
+Good luck for me to create .png of this but for now its the flow.
+
+YES! IT WORKS!
