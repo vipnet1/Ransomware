@@ -2,6 +2,8 @@ from Crypto.PublicKey import RSA
 from Crypto.Cipher import PKCS1_OAEP
 from cryptography.fernet import Fernet
 
+from base64 import b64decode, b64encode
+
 global encryptor
 global decryptor
 
@@ -30,7 +32,7 @@ def setup():
 
     encryptor = PKCS1_OAEP.new(key)
 
-    public_key = key.public_key().exportKey('OpenSSH').decode("utf-8")
+    public_key = key.public_key().exportKey('OpenSSH')
 
     private_key = key.export_key('PEM')
 
@@ -42,9 +44,12 @@ def setup():
 
     print('Encrypted private key with server public key')
 
+def get_encrypted_fernet_key():
+    return encrypted_fernet_key
+
 def encrypt(data):
-    # ciphertext = encryptor.encrypt(b'yo')
-    pass
+    encripted = encryptor.encrypt(data)
+    return b64encode(encripted)
 
 def decrypt(data):
     # decrypted = decryptor.decrypt(ciphertext)
