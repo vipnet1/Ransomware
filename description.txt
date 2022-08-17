@@ -1,3 +1,5 @@
+----- TIMUR'S PART -----
+
 At the beginning, I wanted to generate private, public keys on server. Then via public key encript all files in victim's computer,
 and then after he pays with bitcoin send him private key.
 
@@ -18,13 +20,13 @@ Now why do I need to generate AES key for each encrypted file? Can't I just crea
 I think it's so malwares can proof that their 'decription services' really work on one-two files - maybe will implement it later now I will use
 on symmetric key for all files.
 
-Nevermind I understood so if we get one key we can't decrypt all files.
+Nevermind I understood so if we get one key we can't decrypt all files. To be able to keep encrypting while malware already spoofed.
 
 So the idea is to implement the above - if for example file name is mountaint.png it will be mountain.png.ENCRYPTED_SYMMETRIC_KEY.timurs_ransom
 after retrieving private client key i can encrypt all symmetric keys and restore files.
-And this way I dont have to save key data about all clients iin db or something - thats genious!
+And this way I dont have to save key data about all clients in db or something - thats genious!
 
-By the way this eliminates the option to allow decryption off test files but I can alwayss generate another set of keys on server for this purpose))
+By the way this eliminates the option to allow decryption off test files but I can always generate another set of keys on server for this purpose))
 
 Okay now I have an idea of what I'm going to implement. ready set go.
 
@@ -45,7 +47,7 @@ YES! IT WORKS!
 Just one point as the key sometimes containis slashes, and in windows it causes problems so problematic to put in filename, so i decided
 that both the encrypted aes key and data in the file:
 
-example:
+file example after malware corrupted it:
 ```
 -----KEY BEGIN-----
 B6p/J3efkKjBe701zd0u+Ol4NK+YAuQH9EaGMCIUrPqw7+xsNX02luociS8rnc0xTP+8CWTkqWlkUzW5mr9lHOG6va04uVniXvWFITveuoSUDCY79sg4n9oPXM6vgOFkpKQxcGTxOt5Qa5L+jgbu97i1XZ8PVkSWzuzodLeb/6Y=
@@ -54,13 +56,70 @@ B6p/J3efkKjBe701zd0u+Ol4NK+YAuQH9EaGMCIUrPqw7+xsNX02luociS8rnc0xTP+8CWTkqWlkUzW5
 TIHbv4E80SgIViiiegAmr7idHLcvekAdugW7ASkmUzg=
 ```
 
-Okay for now I made folder of files, all files ther weill be encrypted(I can run on whole pc if needed its easy just currently on my main computer,
+Okay for now I made folder of files, all files there will be encrypted(I can run on whole pc if needed its easy just currently on my main computer,
 as python in windows 7 is trash+my computer trash)
 
-Okay great so cuurrently when you run it all files in folder 'RANSOM' get encrypted and second after, after runnig decription function get
+Okay great so currently when you run it all files in folder 'RANSOM' get encrypted and second after, after runnig decription function get
 restored.
-Now I want that the server will decrypt fernet key ONLY IF PAYMENT WHERE MADE. The plan:
-Im going to add using library(that i hiope exists). - Client(ransomware) will send the transactionid/his wallet i dont know need to investigate
+Now I want that the server will decrypt fernet key ONLY IF PAYMENT WHERE MADE and not always. The plan:
+Im going to add using library(that i hope exists). - Client(ransomware) will send the transactionid/his wallet i dont know need to investigate
 and server checks if payment were made from this address to mine wallet, if so decrypt the private key, and write it in variable that the key
 for this payment were sent and to not accept it anymore.
 Yep lets start.
+
+Okey so I opened 2 electrum wallets, one for ransomware client to pay from one to receive transactions. bought 6 milli-bitcons
+from bits of gold(those assholes minimal papyment is 500 shekels).
+
+And I sent 0.1 milli-bitcoin to the ransomware wallet, and the electrum fees are 0.5 milli-bitcoin. Yey. Life trash.
+Anyway now have the ability to continue.
+
+There are some websites that allow to monitor transactions - as I see common one for python developers is https://www.blockchain.com/btc/address/BITCOIN_ADDRESS
+But i transferred bitcoins about a hour ago and still don't see the data about it. On the other hand there's https://blockstream.info/address/BITCOIN_ADDRESS
+But seems more complex to use, but it has api.
+
+Okay so the first site is showing the address data after searching the transactionId.
+
+Okay found better website:
+https://blockchain.info/rawtx/4119104d3bf68af16c76a2704588ed52adb516a43c65390fa2e416cabf9c08ed
+
+It's the transaction I made from one wallet to another(it doesnt work with addresses for me for some reasons so im
+with trasnactions id).
+So we see in the link a lot of fees(yep, money is the teacher) and a block where we see value 10000 and as addr our address.
+So 10000 stands for 0.1 milli-bitcoin. So we have to iterate all the block, and find the block where the address is ours, and then
+if it's more or equal than the amount we want victims to pay(lets suppose it will actually be 0.1 milli-bitcoin) then we decrypt
+fernet key ONCE.
+
+By the way all this stuff in the server just writing one description file for both projects.
+Yea actually pretty cool endpoint. Useful data.
+
+So we want to search in the array 'out' for money transfer to our address, and store data in variable(better db but don't have much time left...)
+
+Okay so everything working!!!
+We send to server transaction id, it validates if during the transaction if one of the payments was to the address we want(to my wallet)
+and if so decrypts the key. else sends message that process failed. If some exception occurs of course if doesn't decrypt the key
+on server side.
+
+Would be cool to add features like after 3 server request attempts no more decryption available, decryption of test files(for that need to generate
+another 4 rsa keys and fernet...)
+
+But don't have time.
+
+Now what's left? its possible to run the malware not on single file but the whole computer easily, but as im running not on vm cause python
+on vm windows 7 sucks and I have pretty bad computer, and want to CONTINUE USING my pc after the project, I will just run on the files
+in the folder 'RANSOM'.
+
+Now what about informing the user about the ransomware? allowing him to request decryption and so on?
+I want to create explanation file on desktop so user views it. If malware run on whole computer i can just exclude the name
+but currently I dont have such a problem of accidently encrypting the explanation file.
+
+So i create explanation file on desktop(better just copy it from current folder to desktop...)
+I want also to allow user to trigger attempt to send fernet key for decryption for the server. So I will make another fastapi server
+but it will be on the malware itself...
+
+Okey to the work.
+
+Nah nevermind about the server. For the 'users experience' lets say that he should create a file named RANSOMWARE_TRANSACTION_ID.txt
+and put here the transaction id. If we find this file we try to get encrypted key from server. If success we decrypt the files.
+
+Nevermind. So final code - I copy the explanation file to desktop, and request for decryption done via:
+http://127.0.0.1:8074/attempt_decrypt/YOUR_TRANSACTION_ID

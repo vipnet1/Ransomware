@@ -1,0 +1,15 @@
+Hi,
+
+Your files are encrypted and to unlock them you have to use our decryption service.
+You have to transfer 0.1 milli-bitcoins to the address:
+bc1qwzyy3z9t062sft9876xx8g885pj3w3npgcwwq67em298fxg0htysu70985
+
+After you done it wait for the blockchain system to approve your transaction(one hour?) and then go to your browser
+and go to the url:
+http://127.0.0.1:8074/attempt_decrypt/YOUR_TRANSACTION_ID
+
+and your files will be decrypted.
+
+Good luck and have a nice day!!!
+
+*** The actualy encrypted/decrypted files are only those in folder RANSOM ***

@@ -1,3 +1,5 @@
 aiohttp
 pycryptodomex
 hashlib
+fastapi
+uvicorn
