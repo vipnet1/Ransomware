@@ -65,25 +65,30 @@ async def encrypt_file(filepath):
     print(f'File encryption successfull - {filepath}')
 
 async def decrypt_file(filepath):
-    with open(filepath, 'rb') as file:
-        content = file.read().splitlines()
-        filename = file.name
+    try:
+        with open(filepath, 'rb') as file:
+            content = file.read().splitlines()
+            filename = file.name
 
-    encrypted_aes_key = content[1] # in line 2
-    aes_key = rsa_cipher.decrypt(encrypted_aes_key.decode('utf-8'))
+        encrypted_aes_key = content[1] # in line 2
+        aes_key = rsa_cipher.decrypt(encrypted_aes_key.decode('utf-8'))
 
-    data = content[4:][0] # actualy body begins from line 5
-    original_file_body = aes_cipher.decrypt(aes_key, data).decode('utf-8')
+        data = content[4:][0] # actualy body begins from line 5
+        original_file_body = aes_cipher.decrypt(aes_key, data).decode('utf-8')
 
-    with open(filepath, 'w') as file:
-        file.write(original_file_body)
+        with open(filepath, 'w') as file:
+            file.write(original_file_body)
 
-    original_filename = filename.split('.')[:-1]
-    original_filename = '.'.join(original_filename)
+        original_filename = filename.split('.')[:-1]
+        original_filename = '.'.join(original_filename)
 
-    os.rename(filepath, original_filename)
+        os.rename(filepath, original_filename)
 
-    print(f'File decryption successfull - {filepath} to {original_filename}')
+        print(f'File decryption successfull - {filepath} to {original_filename}')
+
+    except Exception as e:
+        print(f'problem decrypting file - {filepath}')
+        raise e
 
 
 async def encrypt_files():
