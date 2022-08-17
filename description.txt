@@ -123,3 +123,21 @@ and put here the transaction id. If we find this file we try to get encrypted ke
 
 Nevermind. So final code - I copy the explanation file to desktop, and request for decryption done via:
 http://127.0.0.1:8074/attempt_decrypt/YOUR_TRANSACTION_ID
+
+Okay I fixed the part with copying the information file to desktop.
+
+Thats all with my part
+
+Summary what Timur Done(in both repo's):
+- Setting base files - README, gitignore, .vscode, requirements.
+- Whole cryptographic structure, logic, research and implementation, key generation logic. Encryption/Decryption.
+- RSA, AES, FERNET, BASE64 - planning and implementing to make the everything work, dealing with strings/binary.
+- Bitcoin wallets(opened 2, had no experiene before), transaction from one to another, find place to monitor data.
+- Whole Ransomware Server repo. Check if transaction_id really paid and if so key decryption.
+- Fastapi implementation.
+- Cryptography, Bitcoin transactions monitor project structure and implementation.
+- Explanation file for the victim.
+- Basically all ransomware pure logic.
+- Architecture explanation files - ransomware_*_architecture.png
+
+----- END TIMUR'S PART -----
