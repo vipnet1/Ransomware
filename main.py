@@ -87,7 +87,8 @@ async def decrypt_file(filepath):
         print(f'File decryption successfull - {filepath} to {original_filename}')
 
     except Exception as e:
-        print(f'problem decrypting file - {filepath}', e.message)
+        print(f'problem decrypting file - {filepath}')
+        print(e.message)
 
 
 async def encrypt_files():
