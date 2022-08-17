@@ -14,8 +14,6 @@ global encrypted_private_key # with fernet
 global encrypted_fernet_key # with server public key
 global public_key
 
-ENCRYPTION_CHUNKS = 100
-
 # setup encryptor, save public key, encrypted private key(using server public key)
 def setup():
     global encrypted_private_key
@@ -47,10 +45,23 @@ def setup():
 def get_encrypted_fernet_key():
     return encrypted_fernet_key
 
+def init_decryptor(fernet_key):
+    global decryptor
+
+    fernet = Fernet(fernet_key)
+
+    private_key = fernet.decrypt(encrypted_private_key)
+    private_key = RSA.import_key(private_key)
+
+    decryptor = PKCS1_OAEP.new(private_key)
+
 def encrypt(data):
     encripted = encryptor.encrypt(data)
     return b64encode(encripted)
 
 def decrypt(data):
-    # decrypted = decryptor.decrypt(ciphertext)
-    pass
+    global decryptor
+    
+    bin_data = b64decode(data)
+    decrypted = decryptor.decrypt(bin_data)
+    return decrypted

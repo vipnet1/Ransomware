@@ -41,3 +41,26 @@ to decrypt client private key and later the files.
 Good luck for me to create .png of this but for now its the flow.
 
 YES! IT WORKS!
+
+Just one point as the key sometimes containis slashes, and in windows it causes problems so problematic to put in filename, so i decided
+that both the encrypted aes key and data in the file:
+
+example:
+```
+-----KEY BEGIN-----
+B6p/J3efkKjBe701zd0u+Ol4NK+YAuQH9EaGMCIUrPqw7+xsNX02luociS8rnc0xTP+8CWTkqWlkUzW5mr9lHOG6va04uVniXvWFITveuoSUDCY79sg4n9oPXM6vgOFkpKQxcGTxOt5Qa5L+jgbu97i1XZ8PVkSWzuzodLeb/6Y=
+-----KEY END-----
+
+TIHbv4E80SgIViiiegAmr7idHLcvekAdugW7ASkmUzg=
+```
+
+Okay for now I made folder of files, all files ther weill be encrypted(I can run on whole pc if needed its easy just currently on my main computer,
+as python in windows 7 is trash+my computer trash)
+
+Okay great so cuurrently when you run it all files in folder 'RANSOM' get encrypted and second after, after runnig decription function get
+restored.
+Now I want that the server will decrypt fernet key ONLY IF PAYMENT WHERE MADE. The plan:
+Im going to add using library(that i hiope exists). - Client(ransomware) will send the transactionid/his wallet i dont know need to investigate
+and server checks if payment were made from this address to mine wallet, if so decrypt the private key, and write it in variable that the key
+for this payment were sent and to not accept it anymore.
+Yep lets start.
