@@ -1,4 +1,20 @@
-# MalwareDetector
+# Ransomware
+
+# Description
+This repo is one of the 2 that build a ransomware. It's the client(the ransomware itself, the dangerous one)
+It encrypts all files in directory RANSOM, and to decrpt them the server(RANSOMWARE SERVER REPO) have to
+decrypt one of your keys(fernet key) with it's private key.
+
+Again... IT'S A SOURCE CODE OF MALWARE - RANSOMWARE. DO NOT USE IT IF YOU DON'T KNOW WHAT YOU ARE DOING.
+DO NOT PUT SENSITIVE FILES IN 'RANSOM' DIRECTORY. DO NOT CHANGE CODE CONSTANTS(SUCH AS ENCRYPTION DIRECTORYFOR YOUR OWN SAFETY)
+THANKS IN ADVANCE
+
+anyway for more info view attached png files. Basically there are two points of focus in the project - the encryption/decryption algorithms,
+the cryptography. And the bitcoin transaction validation logic.
+
+Currently It has no features of other malwares like evasion techniques, persistency etc. but pure ransomware logic.
+
+# End Description
 
 Create virtual env (as long you didn't deleted it, run it on time):
 
@@ -17,14 +33,3 @@ To destroy virtual env:
 ```
 deactivate && rm venv
 ```
-
-
-
-for using pyvbox properly:
-
-Go to VirtualBox’s downloads page (https://www.virtualbox.org/wiki/Downloads) and download the VirtualBox SDK.
-Within the extracted ZIP file there is a directory called “installer".
-Open a console within the installer directory and run "python vboxapisetup.py install" using your system Python. 
-This installs vboxapi which is the interface that talks to VirtualBox via COM.
-
-(vboxapi will be installed on your regular python modules and not on your venv, and its fine)
