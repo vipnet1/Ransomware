@@ -141,3 +141,42 @@ Summary what Timur Done(in both repo's):
 - Architecture explanation files - ransomware_*_architecture.png
 
 ----- END TIMUR'S PART -----
+
+
+
+----- BEN'S PART -----
+
+so firstly I tryed to install the projext moduls from requirements.txt
+at the "RANSOMWARE" and "RANSOMWARESERVER" projects. I notices that the project
+imported Crypto module but it doesnt worked for me so I changed it to Cryptodome. and the version of pyvryptodomex is 3.15.0
+
+after that I added a function on the server to return the current public key at /getPublicKey path.
+and I added a functions on the client to return and keep the public key if the ./keys/public.pem file is empty or non-exists.
+
+I wanted to host the server online but I have some chalenges in the begining like at what.....
+
+
+I added functions for keeping the encrypted client private key, and the encrypted fernet key. so is the client process will be killed somehow, after we will run the client again
+the needed keys to decrypt the files will remain:
+in rsa_chiper i create a function that read key from a file using encode to utf-8 and base 64 decode to get the binary key
+and the oppose operation - to  base 64 encode the key, decode to utf-8 and write to a file
+
+all worked only when the key files were empty or no-existant and we doesn't change the encrypted files endings so the program wont try to encrypt with undefiend encryptor(global rsa_cipher.py) object.
+after some testings, I've noticed that the program generates firstly a random key, that will generate only one public key and private key. after that make an encryptor with that key.
+if I will save the rsa_key the program generated, the user could easily get the private key with (private_key = key.export_key('PEM')) so I of course didn't choose that option. 
+I thought maybe I could keep the encryptor object in file. but after some research I found that I can use my client_private_key to create the encryptor object. so i keeped it without exposing the keys.
+so for now in ./keys/ the program will create the following files:
+-the ransomware public key(.pem)
+-the ransomware encrypted private key -(with fernet key) the key is encoded with utf-8 format and in base 64
+-The mutual fernet key encrypted - (with server public key) the key is encoded with utf-8 format and in base 64
+-The server public key (.pem) 
+
+
+
+I wanted to set a global if_encrypted_files, that wont create new keys and won't encrypt the files again so we can decrypt them. but I noticed that my partner already done that with the endings.
+
+
+
+
+
+
