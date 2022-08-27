@@ -97,7 +97,7 @@ def read_key(file_path):
             data = f.read().encode('utf-8')
             return b64decode(data)
     except Exception as e:
-        print(e)
+        pass
 
 
 def write_key(file_path, content):
