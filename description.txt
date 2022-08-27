@@ -198,6 +198,10 @@ I updated my branch ben-start, I noticed that in persistance I called the two se
 I have noticed that in the server in requirements the pycryptodomex was not in a good version so i fixed that
 I have noticed that in the client the directory keys is non existant at first and I fix that with a funtion called create_dir(path)
 
+I worked on adding autoruns for client and server I faced some difficulties
+firstly I used CD instead of chdir /d. so it did not worked for me, i needed a lot of time because i needed to restart my computer every time. 
+eventually i successed and after that commited - final commit on both project on my branch ben-start and finished.
+
 
 
 

