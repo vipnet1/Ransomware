@@ -185,6 +185,15 @@ the watchdog(selected_pid): every 5s we check if the main process is working if 
 I understood that I maid a mistake on the timing of the saving of the client keys.
 I saved them after encrypting all the files, but if the process will terminate terminate in the encryption process the keys wont match and the decryption wont work
 so I fixed the issue by saving the keys on the creation. so if the process will stop. it will be fine.
+after that i commited the server and the client under "watchdog" (branch ben-start)
+
+I added a persistance feature in the two projects, with python's model winreg we set an autoruns for both client and server. so if the user will restart the computer the serverand the client
+will start over and continue their work. it probably will be good for decryption. because the encryption is very fast especially with a small RANSOM derictory.
+I created on run the two start.bat files. with the current working directory of the projects.
+And for the ransomware I set a timeout of 15 sec so it will run after the server.
+I created it on flight so that the user want be that alerted by the projects.
+This part for me was tricky because I need to restart my computer to verify the addition.
+
 
 
 

