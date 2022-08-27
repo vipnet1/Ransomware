@@ -143,17 +143,21 @@ async def get_server_public_key(file_name):
     #we will request from the server the public key
     try:
         data = await http_requests.request_server_public_key()
+        print(type(data))
+        if type(data) == dict and 'failed' in data:
+            print('the server cant generate a public key for usage')
+            return
+        
+        
+        with open(file_name,"w") as f:
+            f.write(data)
     except Exception as e:
         print(e)
-    print(type(data))
-    if type(data) == dict and 'failed' in data:
-        print('the server cant generate a public key for usage')
-        return
-    
-    with open(file_name,"w") as f:
-        f.write(data)
-
+   
     return 0
+    
+
+    
 
 def watchdog(selected_pid):
     import time
@@ -175,10 +179,19 @@ def set_watchdog():
     p = multiprocessing.Process(target=watchdog, args=(pid_main,))
     p.start()
 
+def create_dir(path):
+    isExists = os.path.exists(path)
+    isDir = os.path.isdir(path)
+    
+    if(isExists and not isDir):
+        return "wrong path"
+
+    if(not isExists):
+        os.makedirs(path)
 
 
 async def main():
-
+    create_dir('./keys')
     await get_server_public_key("./keys/public.pem")
     rsa_cipher.setup()
 

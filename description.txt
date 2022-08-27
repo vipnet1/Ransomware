@@ -194,6 +194,9 @@ And for the ransomware I set a timeout of 15 sec so it will run after the server
 I created it on flight so that the user want be that alerted by the projects.
 This part for me was tricky because I need to restart my computer to verify the addition.
 
+I updated my branch ben-start, I noticed that in persistance I called the two server and client the same so I changed that
+I have noticed that in the server in requirements the pycryptodomex was not in a good version so i fixed that
+I have noticed that in the client the directory keys is non existant at first and I fix that with a funtion called create_dir(path)
 
 
 
