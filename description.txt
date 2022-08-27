@@ -171,9 +171,22 @@ so for now in ./keys/ the program will create the following files:
 -The mutual fernet key encrypted - (with server public key) the key is encoded with utf-8 format and in base 64
 -The server public key (.pem) 
 
-
-
 I wanted to set a global if_encrypted_files, that wont create new keys and won't encrypt the files again so we can decrypt them. but I noticed that my partner already done that with the endings.
+
+
+after some testing i commited the changes on git for the malware project and the server project.
+
+I added a watchdog for the two projects.
+I reason behind that is that firstly we want to encryopt and decrypt all the files and that the processes will work, secoundly we want to maintain the uvicorn fastAPI web servers.
+so I use two functions for this:
+the first is set_watchdog: give the selected_pid for the watchdog and set the watchdog
+the watchdog(selected_pid): every 5s we check if the main process is working if not we create a new process on main function and monitoring it
+
+I understood that I maid a mistake on the timing of the saving of the client keys.
+I saved them after encrypting all the files, but if the process will terminate terminate in the encryption process the keys wont match and the decryption wont work
+so I fixed the issue by saving the keys on the creation. so if the process will stop. it will be fine.
+
+
 
 
 

