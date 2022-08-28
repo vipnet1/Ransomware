@@ -141,3 +141,71 @@ Summary what Timur Done(in both repo's):
 - Architecture explanation files - ransomware_*_architecture.png
 
 ----- END TIMUR'S PART -----
+
+
+
+----- BEN'S PART -----
+
+so firstly I tryed to install the projext moduls from requirements.txt
+at the "RANSOMWARE" and "RANSOMWARESERVER" projects. I notices that the project
+imported Crypto module but it doesnt worked for me so I changed it to Cryptodome. and the version of pyvryptodomex is 3.15.0
+
+after that I added a function on the server to return the current public key at /getPublicKey path.
+and I added a functions on the client to return and keep the public key if the ./keys/public.pem file is empty or non-exists.
+
+I wanted to host the server online but I have some chalenges in the begining like at what.....
+
+
+I added functions for keeping the encrypted client private key, and the encrypted fernet key. so is the client process will be killed somehow, after we will run the client again
+the needed keys to decrypt the files will remain:
+in rsa_chiper i create a function that read key from a file using encode to utf-8 and base 64 decode to get the binary key
+and the oppose operation - to  base 64 encode the key, decode to utf-8 and write to a file
+
+all worked only when the key files were empty or no-existant and we doesn't change the encrypted files endings so the program wont try to encrypt with undefiend encryptor(global rsa_cipher.py) object.
+after some testings, I've noticed that the program generates firstly a random key, that will generate only one public key and private key. after that make an encryptor with that key.
+if I will save the rsa_key the program generated, the user could easily get the private key with (private_key = key.export_key('PEM')) so I of course didn't choose that option. 
+I thought maybe I could keep the encryptor object in file. but after some research I found that I can use my client_private_key to create the encryptor object. so i keeped it without exposing the keys.
+so for now in ./keys/ the program will create the following files:
+-the ransomware public key(.pem)
+-the ransomware encrypted private key -(with fernet key) the key is encoded with utf-8 format and in base 64
+-The mutual fernet key encrypted - (with server public key) the key is encoded with utf-8 format and in base 64
+-The server public key (.pem) 
+
+I wanted to set a global if_encrypted_files, that wont create new keys and won't encrypt the files again so we can decrypt them. but I noticed that my partner already done that with the endings.
+
+
+after some testing i commited the changes on git for the malware project and the server project.
+
+I added a watchdog for the two projects.
+I reason behind that is that firstly we want to encryopt and decrypt all the files and that the processes will work, secoundly we want to maintain the uvicorn fastAPI web servers.
+so I use two functions for this:
+the first is set_watchdog: give the selected_pid for the watchdog and set the watchdog
+the watchdog(selected_pid): every 5s we check if the main process is working if not we create a new process on main function and monitoring it
+
+I understood that I maid a mistake on the timing of the saving of the client keys.
+I saved them after encrypting all the files, but if the process will terminate terminate in the encryption process the keys wont match and the decryption wont work
+so I fixed the issue by saving the keys on the creation. so if the process will stop. it will be fine.
+after that i commited the server and the client under "watchdog" (branch ben-start)
+
+I added a persistance feature in the two projects, with python's model winreg we set an autoruns for both client and server. so if the user will restart the computer the serverand the client
+will start over and continue their work. it probably will be good for decryption. because the encryption is very fast especially with a small RANSOM derictory.
+I created on run the two start.bat files. with the current working directory of the projects.
+And for the ransomware I set a timeout of 15 sec so it will run after the server.
+I created it on flight so that the user want be that alerted by the projects.
+This part for me was tricky because I need to restart my computer to verify the addition.
+
+I updated my branch ben-start, I noticed that in persistance I called the two server and client the same so I changed that
+I have noticed that in the server in requirements the pycryptodomex was not in a good version so i fixed that
+I have noticed that in the client the directory keys is non existant at first and I fix that with a funtion called create_dir(path)
+
+I worked on adding autoruns for client and server I faced some difficulties
+firstly I used CD instead of chdir /d. so it did not worked for me, i needed a lot of time because i needed to restart my computer every time. 
+eventually i successed and after that commited - final commit on both project on my branch ben-start and finished.
+
+
+
+
+
+
+
+

