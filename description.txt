@@ -203,7 +203,14 @@ firstly I used CD instead of chdir /d. so it did not worked for me, i needed a l
 eventually i successed and after that commited - final commit on both project on my branch ben-start and finished.
 
 
+----- TIMURS PART AGAIN -----
 
+As there was a small misunderstanding, the ransomwareServer won't run locally on the victim's pc, but on a remote machine. So part
+of watchdog and persistency removed from there as not needed.
+
+Also public key file restored to the client side because we want that even if there is no iinternet connection and cant get key
+from server we will still encrypt the files. But if user manages to remove the public key, we will be able to restore it if there's
+an internet connection.
 
 
 
