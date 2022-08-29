@@ -10,6 +10,9 @@ http://127.0.0.1:8074/attempt_decrypt/YOUR_TRANSACTION_ID
 
 and your files will be decrypted.
 
+We want to remind you that if you try to remove the ransomware you also will remove the only way of decrypting your files back,
+so it's in your interest to keep as alive.
+
 Good luck and have a nice day!!!
 
 *** The actualy encrypted/decrypted files are only those in folder RANSOM ***
